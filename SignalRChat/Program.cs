@@ -1,6 +1,14 @@
 using SignalRChat.Hubs; // 1
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
+////
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AuthDbContext>(
+    opt => opt.UseSqlite("DataSource=Users.db")
+);
 
 builder.Services.AddSignalR(); // 2
 
