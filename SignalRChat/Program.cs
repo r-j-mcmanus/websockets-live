@@ -1,6 +1,7 @@
 using SignalRChat.Hubs; // 1
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 ////
 
@@ -10,7 +11,22 @@ builder.Services.AddDbContext<AuthDbContext>(
     opt => opt.UseSqlite("DataSource=Users.db")
 );
 
+builder.Services.AddAuthentication(options => {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}
+);
+
+builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<AuthDbContext>(); ;
+
 builder.Services.AddSignalR(); // 2
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument(config => {
+    config.DocumentName = "ChatLogIn";
+    config.Title = "ChatLogIn V1";
+    config.Version = "v1";
+});
 
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins"; //4
 builder.Services.AddCors(options =>
@@ -28,6 +44,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 app.UseCors(MyAllowSpecificOrigins); // 5
+app.UseOpenApi();
+app.UseSwaggerUi(config =>
+{   config.DocumentTitle = "TodoAPI";
+    config.Path = "/swagger";
+    config.DocumentPath = "/swagger/{documentName}/swagger.json";
+    config.DocExpansion = "list";
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -41,8 +64,10 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapIdentityApi<IdentityUser>();
 app.MapHub<ChatHub>("/chatHub"); // 3
 
 app.Run();
