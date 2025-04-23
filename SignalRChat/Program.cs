@@ -46,7 +46,7 @@ var app = builder.Build();
 app.UseCors(MyAllowSpecificOrigins); // 5
 app.UseOpenApi();
 app.UseSwaggerUi(config =>
-{   config.DocumentTitle = "TodoAPI";
+{   config.DocumentTitle = "ChatApp";
     config.Path = "/swagger";
     config.DocumentPath = "/swagger/{documentName}/swagger.json";
     config.DocExpansion = "list";
